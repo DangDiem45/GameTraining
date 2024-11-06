@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Custom Logo</title>
+  </head>
+  <body>
+    <canvas id="logoCanvas" width="400" height="400" style="border:1px solid black;"></canvas>
+
+    <script>
+        let canvas;
+        let context;
+
+        window.onload = init;
+
+        function init(){
+
+            canvas = document.getElementById('logoCanvas');
+            context = canvas.getContext('2d');
+
+            drawLogo();
+        }
+        function drawLogo() {
+            context.beginPath();
+            context.arc(200, 200, 100, 0, 2 * Math.PI);
+            context.fillStyle = '#0099b0';
+            context.fill();
+            context.strokeStyle = '#003366';
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(150, 100);
+            context.lineTo(250, 100);
+            context.lineTo(200, 50);
+            context.closePath();
+            context.fillStyle = '#ffcc00';
+            context.fill();
+            context.strokeStyle = '#003366';
+            context.stroke();
+
+            context.font = '30px Arial';
+            context.fillStyle = '#ff8080';
+            context.textAlign = 'center';
+            context.fillText('Logo', 200, 250);
+        }
+    </script>
+  </body>
+</html>

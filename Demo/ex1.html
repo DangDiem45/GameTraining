@@ -21,20 +21,28 @@
             window.onload = init;
         
             function init(){
-                // Get a reference to the canvas
                 canvas = document.getElementById('canvas');
                 context = canvas.getContext('2d');
         
                 draw();
-             
+            
             }
             function draw(){
-                // Get a random color, red or blue
-                let randomColor = Math.random() > 0.5? '#ff8080' : '#0099b0';
+                
+                context.beginPath();
+                context.arc(200, 100, 50, 0, 2 * Math.PI);
+                context.strokeStyle = '#0099b0';
+                context.lineWidth = 5;
+                context.stroke();
 
-                // Draw a rectangle
-                context.fillStyle = randomColor;
-                context.fillRect(100, 50, 200, 175);
+                context.beginPath();
+                context.moveTo(200, 100);
+                context.lineTo(250, 150);
+                context.lineTo(250, 50);
+                context.stroke();
+
+                context.strokeStyle = '#ff8080';
+                context.strokeRect(100, 50, 100, 125);
             }
           
         </script>

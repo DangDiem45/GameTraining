@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HTML5 Canvas - Drawing a House</title>
+</head>
+<body>
+
+<canvas id="canvas" width="500" height="500" style="border:1px solid lightgrey;"></canvas>
+
+<script>
+    let canvas;
+    let context;
+
+    window.onload = init;
+
+    function init(){
+
+        canvas = document.getElementById('canvas');
+        context = canvas.getContext('2d');
+
+        drawHouse();
+    }
+
+    function drawHouse(){
+        
+        context.fillStyle = '#D3B897'; 
+        context.fillRect(150, 200, 200, 200); 
+
+        context.beginPath();
+        context.moveTo(150, 200); 
+        context.lineTo(250, 100); 
+        context.lineTo(350, 200);
+        context.closePath(); 
+        context.fillStyle = '#8B4513'; 
+        context.fill();
+
+        context.fillStyle = '#8B5A2B'; 
+        context.fillRect(220, 300, 60, 100);
+
+        context.fillStyle = '#ADD8E6';
+        context.fillRect(170, 230, 40, 40);
+
+        context.fillStyle = '#ADD8E6'; 
+        context.fillRect(290, 230, 40, 40); 
+    }
+</script>
+
+</body>
+</html>
