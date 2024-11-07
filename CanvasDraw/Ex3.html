@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Bar Chart</title>
+  </head>
+  <body>
+    <canvas id="barChartCanvas" width="600" height="400" style="border:1px solid black;"></canvas>
+
+    <script>
+      let canvas = document.getElementById('barChartCanvas');
+      let context = canvas.getContext('2d');
+
+      function drawBarChart() {
+        let barHeights = [150, 200, 100, 250, 180];
+        let barWidth = 50;
+        let barSpacing = 100;
+
+        for (let i = 0; i < barHeights.length; i++) {
+          context.fillStyle = '#0099b0';
+          context.fillRect(i * barSpacing, canvas.height - barHeights[i], barWidth, barHeights[i]);
+        }
+
+        context.font = '20px Arial';
+        context.fillStyle = '#000000';
+        for (let i = 0; i < barHeights.length; i++) {
+          context.fillText(`Bar ${i + 1}`, i * barSpacing + barWidth / 2, canvas.height - barHeights[i] - 10);
+        }
+      }
+
+      drawBarChart();
+    </script>
+  </body>
+</html>

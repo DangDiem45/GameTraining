@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>SVG Path to Canvas</title>
+  </head>
+  <body>
+    <canvas id="canvas" width="124" height="124" style="border:1px solid black;"></canvas>
+
+    <script>
+      let canvas = document.getElementById('canvas');
+      let context = canvas.getContext('2d');
+
+      function drawSVG() {
+       
+        context.fillStyle = '#F97316';
+        context.fillRect(0, 0, 124, 124);
+
+        let trianglePath = new Path2D("M19.375 36.7818V100.625C19.375 102.834 21.1659 104.625 23.375 104.625H87.2181C90.7818 104.625 92.5664 100.316 90.0466 97.7966L26.2034 33.9534C23.6836 31.4336 19.375 33.2182 19.375 36.7818Z");
+        context.fillStyle = 'white';
+        context.fill(trianglePath);
+
+        context.beginPath();
+        context.arc(63.2109, 37.5391, 18.1641, 0, 2 * Math.PI);
+        context.fillStyle = 'black';
+        context.fill();
+
+       
+      }
+
+      drawSVG();
+    </script>
+  </body>
+</html>
