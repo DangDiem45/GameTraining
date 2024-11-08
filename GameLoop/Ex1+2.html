@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Loop</title>
+</head>
+<body>
+    <canvas id="canvas" width="750" height="400"></canvas>
+    <script>
+        let canvas, context;
+        let circleX = 0; 
+        let circleSpeed = 100;
+
+        let secondsPassed;
+        let oldTimeStamp = 0;
+        let fps;
+
+        window.onload = function() {
+            canvas = document.getElementById('canvas');
+            context = canvas.getContext('2d');
+
+            window.requestAnimationFrame(gameLoop);
+        };
+
+        function gameLoop(timeStamp) {
+            secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+            oldTimeStamp = timeStamp;
+
+            fps = Math.round(1 / secondsPassed);
+
+            circleX += circleSpeed * secondsPassed;
+            if (circleX > canvas.width) {
+                circleX = 0; 
+            }
+
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawCircle(circleX, canvas.height / 2);
+
+            drawFPS(fps);
+
+            window.requestAnimationFrame(gameLoop);
+        }
+
+        function drawCircle(x, y) {
+            context.fillStyle = '#0099b0';
+            context.beginPath();
+            context.arc(x, y, 20, 0, 2 * Math.PI);
+            context.fill();
+        }
+
+        function drawFPS(fps) {
+            context.fillStyle = 'white';
+            context.fillRect(0, 0, 100, 40);
+            context.font = '20px Arial';
+            context.fillStyle = 'black';
+            context.fillText("FPS: " + fps, 10, 25);
+        }
+    </script>
+</body>
+</html>

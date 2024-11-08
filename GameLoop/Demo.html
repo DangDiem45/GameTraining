@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Loop Basic</title>
+</head>
+<body>
+    <canvas id="canvas" width="750" height="400"></canvas>
+    <script>
+        let secondsPassed;
+        let oldTimeStamp = 0;
+        let fps;
+        let canvas;
+        let context;
+
+        // Khởi tạo khi trang tải xong
+        window.onload = function() {
+            canvas = document.getElementById('canvas');
+            context = canvas.getContext('2d');
+
+            // Bắt đầu vòng lặp game lần đầu tiên
+            window.requestAnimationFrame(gameLoop);
+        };
+
+        function gameLoop(timeStamp) {
+
+            // Tính thời gian trôi qua kể từ khung hình trước
+            secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+            oldTimeStamp = timeStamp;
+
+            // Tính FPS
+            fps = Math.round(1 / secondsPassed);
+
+            // Vẽ số FPS lên màn hình
+            context.fillStyle = 'red';
+            context.fillRect(0, 0, 200, 100);
+            context.font = '25px Arial';
+            context.fillStyle = 'black';
+            context.fillText("FPS: " + fps, 10, 30);
+
+         
+            draw();
+            // Yêu cầu khung hình tiếp theo
+            window.requestAnimationFrame(gameLoop);
+        }
+
+        // Hàm vẽ (tạm thời vẽ một hình chữ nhật thay đổi màu sắc để minh họa)
+        function draw() {
+            let randomColor = Math.random() > 0.5 ? '#ff8080' : '#0099b0';
+            context.fillStyle = randomColor;
+            context.fillRect(100, 50, 200, 175);
+        }
+    </script>
+</body>
+</html>
