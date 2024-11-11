@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Loop with FPS Counter</title>
+</head>
+<body>
+  <button id="toggle-fps">Switch to 30 FPS</button>
+  <canvas id="gameCanvas" width="600" height="400" style="border:1px solid black;"></canvas>
+
+  <script>
+    "use strict";
+    
+    let canvas;
+    let context;
+    let cappedFPS = false;
+    let lastTime = 0;
+    const targetFPS = 30;
+    const interval = 1000 / targetFPS;
+    let frameTimes = [];
+
+    let x = 100, y = 100, dx = 2, dy = 2, radius = 20;
+
+    function init() {
+      canvas = document.getElementById("gameCanvas");
+      context = canvas.getContext("2d");
+
+      const toggleBtn = document.getElementById("toggle-fps");
+
+      toggleBtn.addEventListener("click", () => {
+        cappedFPS = !cappedFPS;
+        toggleBtn.textContent = cappedFPS ? "Switch to Uncapped FPS" : "Switch to 30 FPS";
+      });
+
+      animate(0);
+    }
+
+    function animate(time) {
+      if (cappedFPS && time - lastTime < interval) {
+        requestAnimationFrame(animate);
+        return;
+      }
+      lastTime = time;
+
+      updateBallPosition();
+      draw();
+
+      updateFPS(time);
+
+      requestAnimationFrame(animate);
+    }
+
+    function updateBallPosition() {
+      if (x + dx > canvas.width - radius || x + dx < radius) dx = -dx;
+      if (y + dy > canvas.height - radius || y + dy < radius) dy = -dy;
+      
+      x += dx;
+      y += dy;
+    }
+
+    function draw() {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      context.beginPath();
+      context.arc(x, y, radius, 0, Math.PI * 2);
+      context.fillStyle = "#0095DD";
+      context.fill();
+      context.closePath();
+
+      context.fillStyle = "black";
+      context.font = "16px Arial";
+      context.fillText(`FPS: ${calculateAverageFPS()}`, 10, 20);
+    }
+
+    function updateFPS(time) {
+      frameTimes.push(time);
+
+      frameTimes = frameTimes.filter(t => t > time - 1000);
+    }
+
+    function calculateAverageFPS() {
+      if (frameTimes.length < 2) return 0;
+
+      return Math.round(frameTimes.length);
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
