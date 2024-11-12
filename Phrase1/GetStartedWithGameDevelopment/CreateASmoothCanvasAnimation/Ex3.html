@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Bounce Animation</title>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500" style="border: 1px solid lightgrey"></canvas>
+
+    <script>
+        let canvas;
+        let context;
+        let secondsPassed = 0;
+        let oldTimeStamp = 0;
+        let rectX = 0;
+        let rectY = 0;
+        let rectWidth = 150;
+        let rectHeight = 100;
+        let velocityX = 100; 
+        let velocityY = 75;  
+
+        window.onload = init;
+
+        function init(){
+            canvas = document.getElementById('canvas');
+            context = canvas.getContext('2d');
+            
+            window.requestAnimationFrame(gameLoop);
+        }
+
+        function draw(){
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = '#ff8080';
+            context.fillRect(rectX, rectY, rectWidth, rectHeight);
+        }
+
+        function gameLoop(timeStamp) {
+            secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+            secondsPassed = Math.min(secondsPassed, 0.1); 
+            oldTimeStamp = timeStamp;
+
+            update(secondsPassed);
+            draw();
+
+            window.requestAnimationFrame(gameLoop);
+        }
+
+        function update(secondsPassed) {
+            rectX += velocityX * secondsPassed;
+            rectY += velocityY * secondsPassed;
+
+            if (rectX <= 0 || rectX + rectWidth >= canvas.width) {
+                velocityX = -velocityX; 
+                rectX = Math.max(0, Math.min(rectX, canvas.width - rectWidth)); 
+            }
+            if (rectY <= 0 || rectY + rectHeight >= canvas.height) {
+                velocityY = -velocityY; 
+                rectY = Math.max(0, Math.min(rectY, canvas.height - rectHeight)); 
+            }
+        }
+    </script>
+</body>
+</html>

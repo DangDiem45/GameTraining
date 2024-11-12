@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smooth Canvas Animation</title>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500" style="border: 1px solid lightgrey"></canvas>
+
+    <script>
+        let canvas;
+        let context;
+        let secondsPassed = 0;
+        let oldTimeStamp = 0;
+        let movingSpeed = 1; 
+        let angle = 0; 
+        let radius = 100; 
+        let centerX, centerY;
+
+        window.onload = init;
+
+        function init(){
+            canvas = document.getElementById('canvas');
+            context = canvas.getContext('2d');
+            
+            centerX = canvas.width / 2;
+            centerY = canvas.height / 2;
+            
+            window.requestAnimationFrame(gameLoop);
+        }
+
+        function draw(){
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = '#ff8080';
+
+            let rectX = centerX + radius * Math.cos(angle);
+            let rectY = centerY + radius * Math.sin(angle);
+
+            context.fillRect(rectX, rectY, 150, 100);
+        }
+
+        function gameLoop(timeStamp) {
+            secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+            secondsPassed = Math.min(secondsPassed, 0.1);
+            oldTimeStamp = timeStamp;
+
+            update(secondsPassed);
+            draw();
+
+            window.requestAnimationFrame(gameLoop);
+        }
+
+        function update(secondsPassed) {
+            angle += movingSpeed * secondsPassed;
+
+            if (angle >= 2 * Math.PI) {
+                angle -= 2 * Math.PI;
+            }
+        }
+    </script>
+</body>
+</html>

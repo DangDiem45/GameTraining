@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smooth Canvas Animation</title>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500" style="border: 1px solid lightgrey"></canvas>
+
+    <script>
+        let canvas;
+        let context;
+        let rectX = 0;
+        let rectY = 0;
+        let secondsPassed = 0;
+        let oldTimeStamp = 0;
+        let movingSpeed = 50;
+
+        window.onload = init;
+
+        function init(){
+            canvas = document.getElementById('canvas');
+            context = canvas.getContext('2d');
+         
+            window.requestAnimationFrame(gameLoop);
+        }
+        function draw(){
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = '#ff8080';
+            context.fillRect(rectX, rectY, 150, 100);
+        }
+        function gameLoop(timeStamp) {
+            // Calculate how much time has passed
+                secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+                secondsPassed = Math.min(secondsPassed, 0.1);
+                oldTimeStamp = timeStamp;
+
+                // Pass the time to the update
+                update(secondsPassed);
+                draw();
+
+                window.requestAnimationFrame(gameLoop);
+        }
+        function update() {
+            // Use time to calculate new position
+            rectX += (movingSpeed * secondsPassed);
+            rectY += (movingSpeed * secondsPassed);
+        }
+    </script>
+</body>
+</html>
