@@ -1,0 +1,2 @@
+Create A Smooth Canvas Animation
+Complete [Ex1](https://github.com/DangDiem45/GameTraining/blob/master/Phrase1/GetStartedWithGameDevelopment/CreateASmoothCanvasAnimation/Ex1.html), [Ex2](https://github.com/DangDiem45/GameTraining/blob/master/Phrase1/GetStartedWithGameDevelopment/CreateASmoothCanvasAnimation/Ex2.html), [Ex3](https://github.com/DangDiem45/GameTraining/blob/master/Phrase1/GetStartedWithGameDevelopment/CreateASmoothCanvasAnimation/Ex3.html)
