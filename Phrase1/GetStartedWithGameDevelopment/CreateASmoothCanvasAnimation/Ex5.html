@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rectangle Control Game with Smoothed FPS Counter</title>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500" style="border: 1px solid lightgrey"></canvas>
+
+    <script>
+        let canvas;
+        let context;
+        let rectX = 200; 
+        let rectY = 200;
+        let rectWidth = 50;
+        let rectHeight = 50;
+        let speed = 200; 
+        let secondsPassed = 0;
+        let oldTimeStamp = 0;
+
+        let fpsHistory = [];
+        let fps = 0;
+
+        let movingLeft = false;
+        let movingRight = false;
+        let movingUp = false;
+        let movingDown = false;
+
+        window.onload = init;
+
+        function init(){
+            canvas = document.getElementById('canvas');
+            context = canvas.getContext('2d');
+
+            window.addEventListener('keydown', keyDownHandler);
+            window.addEventListener('keyup', keyUpHandler);
+
+            window.requestAnimationFrame(gameLoop);
+        }
+
+        function keyDownHandler(event) {
+            if (event.key === "ArrowLeft") movingLeft = true;
+            if (event.key === "ArrowRight") movingRight = true;
+            if (event.key === "ArrowUp") movingUp = true;
+            if (event.key === "ArrowDown") movingDown = true;
+        }
+
+        function keyUpHandler(event) {
+            if (event.key === "ArrowLeft") movingLeft = false;
+            if (event.key === "ArrowRight") movingRight = false;
+            if (event.key === "ArrowUp") movingUp = false;
+            if (event.key === "ArrowDown") movingDown = false;
+        }
+
+        function gameLoop(timeStamp) {
+            secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+            secondsPassed = Math.min(secondsPassed, 0.1); 
+            oldTimeStamp = timeStamp;
+
+            const currentFPS = 1 / secondsPassed;
+            
+            fpsHistory.push(currentFPS);
+            if (fpsHistory.length > 10) {
+                fpsHistory.shift();
+            }
+
+            fps = fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length;
+
+            update(secondsPassed);
+            draw();
+
+            window.requestAnimationFrame(gameLoop);
+        }
+
+        function update(secondsPassed) {
+            if (movingLeft) rectX -= speed * secondsPassed;
+            if (movingRight) rectX += speed * secondsPassed;
+            if (movingUp) rectY -= speed * secondsPassed;
+            if (movingDown) rectY += speed * secondsPassed;
+
+            rectX = Math.max(0, Math.min(rectX, canvas.width - rectWidth));
+            rectY = Math.max(0, Math.min(rectY, canvas.height - rectHeight));
+        }
+
+        function draw(){
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            context.fillStyle = '#ff8080';
+            context.fillRect(rectX, rectY, rectWidth, rectHeight);
+
+            context.fillStyle = 'black';
+            context.font = '16px Arial';
+            context.fillText("FPS: " + fps.toFixed(1), 10, 20); 
+        }
+    </script>
+</body>
+</html>
