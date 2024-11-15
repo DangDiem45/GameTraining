@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Vector Speed Velocity</title>
+</head>
+<body>
+    <canvas id="gameCanvas" width="600" height="500" style="border: 1px solid lightgrey"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+
+        let position = {x: 100, y: 100};
+        let velocity = {x: 2, y: 3};
+
+        function drawCircle(position) {
+            context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+            context.beginPath();
+            context.arc(position.x, position.y, 20, 0, Math.PI * 2); // Draw circle
+            context.fillStyle = "blue";
+            context.fill();
+            context.closePath();
+        }
+        function addVectors(v1, v2) {
+            return { x: v1.x + v2.x, y: v1.y + v2.y };
+        }
+
+        function subtractVectors(v1, v2) {
+            return { x: v1.x - v2.x, y: v1.y - v2.y };
+        }
+
+        function multiplyVector(v, scalar) {
+            return { x: v.x * scalar, y: v.y * scalar };
+        }
+
+        function magnitude(v) {
+            return Math.sqrt(v.x * v.x + v.y * v.y);
+        }
+
+        function normalize(v) {
+            let mag = magnitude(v);
+            return { x: v.x / mag, y: v.y / mag };
+        }
+        // velocity = multiplyVector(velocity, 2); // Doubling speed
+        velocity = normalize(velocity); // Set to unit vector
+        velocity = multiplyVector(velocity, 5); // Scale to desired speed
+
+        function updatePosition() {
+            position = addVectors(position, velocity);
+        }
+        function gameLoop() {
+            updatePosition();
+            drawCircle(position);
+            requestAnimationFrame(gameLoop); // Call gameLoop on the next frame
+        }
+
+        function setDirection(x, y, speed) {
+            let newDirection = normalize({ x: x, y: y });
+            velocity = multiplyVector(newDirection, speed);
+        }
+
+        setDirection(200, 200, 10);
+        gameLoop(); // Start the animation
+    </script>
+</body>
+</html>

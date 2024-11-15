@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Randomly Moving Circles</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600" style="border: 1px solid lightgrey;"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+
+        class Vector {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+
+            add(other) {
+                return new Vector(this.x + other.x, this.y + other.y);
+            }
+
+            scale(scalar) {
+                return new Vector(this.x * scalar, this.y * scalar);
+            }
+
+            magnitude() {
+                return Math.sqrt(this.x ** 2 + this.y ** 2);
+            }
+
+            normalize() {
+                const mag = this.magnitude();
+                return mag === 0 ? new Vector(0, 0) : this.scale(1 / mag);
+            }
+        }
+
+        class Circle {
+            constructor(position, velocity, color) {
+                this.position = position;
+                this.velocity = velocity;
+                this.color = color;
+                this.radius = 20;
+            }
+
+            move() {
+                this.position = this.position.add(this.velocity);
+
+                if (this.position.x <= this.radius || this.position.x >= canvas.width - this.radius) {
+                    this.velocity.x *= -1;
+                }
+                if (this.position.y <= this.radius || this.position.y >= canvas.height - this.radius) {
+                    this.velocity.y *= -1;
+                }
+            }
+
+            draw() {
+                context.beginPath();
+                context.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+                context.fillStyle = this.color;
+                context.fill();
+                context.closePath();
+            }
+        }
+
+        const circles = [];
+        for (let i = 0; i < 5; i++) {
+            const position = new Vector(Math.random() * canvas.width, Math.random() * canvas.height);
+            const velocity = new Vector((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4);
+            const color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            circles.push(new Circle(position, velocity, color));
+        }
+
+        const playerCircle = new Circle(new Vector(400, 300), new Vector(0, 0), "red");
+
+        const keyState = {};
+        window.addEventListener("keydown", (e) => (keyState[e.code] = true));
+        window.addEventListener("keyup", (e) => (keyState[e.code] = false));
+
+        function updatePlayerVelocity() {
+            if (keyState["ArrowUp"]) playerCircle.velocity = playerCircle.velocity.add(new Vector(0, -0.5));
+            if (keyState["ArrowDown"]) playerCircle.velocity = playerCircle.velocity.add(new Vector(0, 0.5));
+            if (keyState["ArrowLeft"]) playerCircle.velocity = playerCircle.velocity.add(new Vector(-0.5, 0));
+            if (keyState["ArrowRight"]) playerCircle.velocity = playerCircle.velocity.add(new Vector(0.5, 0));
+        }
+
+        function gameLoop() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            circles.forEach((circle) => {
+                circle.move();
+                circle.draw();
+            });
+
+            updatePlayerVelocity();
+            playerCircle.move();
+            playerCircle.draw();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
