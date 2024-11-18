@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Falling Balls</title>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const context = canvas.getContext("2d");
+        const gravity = 0.5;
+
+        function getRandom(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        let balls = Array.from({length: 7}, () => ({
+            position: {x: getRandom(20, canvas.width - 20), y: getRandom(20, 100)},
+            velocity: {x: 0, y: getRandom(0, 10)},
+            radius: getRandom(20, 30),
+            color: `rgb(${getRandom(0, 255)}, ${getRandom(0, 255)}, ${getRandom(0, 255)})`
+        }));
+
+        function drawBalls(balls) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            balls.forEach(ball => {
+                context.beginPath();
+                context.arc(ball.position.x, ball.position.y, ball.radius, 0, Math.PI * 2);
+                context.fillStyle = ball.color;
+                context.fill();
+                context.closePath();
+            });
+        }
+
+        function applyGravity(balls) {
+            balls.forEach(ball => {
+                ball.velocity.y += gravity;
+                ball.position.y += ball.velocity.y;
+            });
+        }
+
+        function checkCollisions(balls) {
+            balls.forEach(ball => {
+                if (ball.position.y + ball.radius > canvas.height) {
+                    ball.velocity.y *= -getRandom(0.6, 0.9); 
+                    ball.position.y = canvas.height - ball.radius;
+                }
+            });
+        }
+
+        function gameLoop() {
+            applyGravity(balls);
+            checkCollisions(balls);
+            drawBalls(balls);
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

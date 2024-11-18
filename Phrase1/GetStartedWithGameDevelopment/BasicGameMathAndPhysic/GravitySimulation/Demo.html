@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravity Simulation Demo</title>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="400" style="border: 1px solid lightgrey;"></canvas>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const context = canvas.getContext('2d');
+        const gravity = 0.5;
+        let ball = {
+            position: {x:300, y:50},
+            velocity: {x:2, y:0},
+            radius: 20,
+            color: "blue"
+        };
+
+        function drawBall(ball){
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.beginPath();
+            context.arc(ball.position.x, ball.position.y, ball.radius, 0, Math.PI*2);
+            context.fillStyle = ball.color;
+            context.fill();
+            context.closePath();
+        }
+
+        function applyGravity(ball){
+            ball.velocity.y += gravity;
+            ball.velocity.x *= 0.99; 
+            ball.velocity.y *= 0.99; 
+            ball.position.x += ball.velocity.x; 
+            ball.position.y += ball.velocity.y;
+        }
+
+        function checkCollision(ball){
+            if(ball.position.y + ball.radius >= canvas.height){
+                ball.velocity.y *= -0.7;
+                ball.position.y = canvas.height - ball.radius;
+            }
+            if (ball.position.x + ball.radius >= canvas.width || ball.position.x <= 20) {
+                ball.velocity.x *= -0.7;
+            }
+        }
+
+        function gameLoop(){
+            applyGravity(ball);
+            checkCollision(ball);
+            drawBall(ball);
+
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+    </script>
+</body>
+</html>
