@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rectangle Circle Collision</title>
+    <style>
+        canvas {
+            border: 1px solid lightgrey;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="500"></canvas>
+    <script>
+        const canvas = document.getElementById("canvas");
+        const context = canvas.getContext('2d');
+
+        class GameObject {
+            constructor(context, x, y, vx, vy) {
+                this.context = context;
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+
+                this.isColliding = false;
+            }
+        }
+
+        class Square extends GameObject {
+            constructor(context, x, y, vx, vy) {
+                super(context, x, y, vx, vy);
+                this.width = 100; 
+                this.height = 100; 
+            }
+
+            draw() {
+                this.context.fillStyle = this.isColliding ? '#ff8080' : '#0099b0';
+                this.context.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            update(secondsPassed) {
+                const speedMultiplier = 1.5; 
+                this.x += this.vx * secondsPassed * speedMultiplier;
+                this.y += this.vy * secondsPassed * speedMultiplier;
+
+                // Va chạm với khung hình
+                if (this.x < 0 || this.x + this.width > canvas.width) {
+                    this.vx = -this.vx;
+                    this.x = Math.max(0, Math.min(this.x, canvas.width - this.width));
+                }
+                if (this.y < 0 || this.y + this.height > canvas.height) {
+                    this.vy = -this.vy;
+                    this.y = Math.max(0, Math.min(this.y, canvas.height - this.height));
+                }
+            }
+        }
+
+        class Circle extends GameObject {
+            constructor(context, x, y, vx, vy, radius) {
+                super(context, x, y, vx, vy);
+                this.radius = radius || 50; 
+            }
+
+            draw() {
+                this.context.beginPath();
+                this.context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+                this.context.fillStyle = this.isColliding ? '#ff8080' : '#0099b0';
+                this.context.fill();
+            }
+
+            update(secondsPassed) {
+                const speedMultiplier = 1.5; 
+                this.x += this.vx * secondsPassed * speedMultiplier;
+                this.y += this.vy * secondsPassed * speedMultiplier;
+
+                // Va chạm với khung hình
+                if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
+                    this.vx = -this.vx;
+                    this.x = Math.max(this.radius, Math.min(this.x, canvas.width - this.radius));
+                }
+                if (this.y - this.radius < 0 || this.y + this.radius > canvas.height) {
+                    this.vy = -this.vy;
+                    this.y = Math.max(this.radius, Math.min(this.y, canvas.height - this.radius));
+                }
+            }
+        }
+
+        // Xử lý va chạm giữa HCN và Hình tròn
+        function detectCollision(rect, circle) {
+            const closestX = Math.max(rect.x, Math.min(circle.x, rect.x + rect.width));
+            const closestY = Math.max(rect.y, Math.min(circle.y, rect.y + rect.height));
+
+            const dx = circle.x - closestX;
+            const dy = circle.y - closestY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            const isColliding = distance < circle.radius;
+
+            if (isColliding) {
+                const normalVector = { x: dx / distance, y: dy / distance };
+
+                if (circle.vx * normalVector.x < 0) {
+                    circle.vx = -circle.vx;
+                }
+                if (circle.vy * normalVector.y < 0) {
+                    circle.vy = -circle.vy;
+                }
+
+                if (rect.vx !== 0 || rect.vy !== 0) {
+                    if (rect.vx * normalVector.x > 0) {
+                        rect.vx = -rect.vx;
+                    }
+                    if (rect.vy * normalVector.y > 0) {
+                        rect.vy = -rect.vy;
+                    }
+                }
+            }
+
+            return { isColliding };
+        }
+
+        const rect = new Square(context, 200, 200, 150, 120); 
+        const circle = new Circle(context, 0, 0, 200, 170); 
+
+        function update(secondsPassed) {
+            rect.update(secondsPassed);
+            circle.update(secondsPassed);
+
+            const collision = detectCollision(rect, circle);
+            rect.isColliding = circle.isColliding = collision.isColliding;
+        }
+
+        function draw() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            rect.draw();
+            circle.draw();
+        }
+
+        let lastTimestamp = 0;
+
+        function gameLoop(timestamp) {
+            const secondsPassed = (timestamp - lastTimestamp) / 1000;
+            lastTimestamp = timestamp;
+
+            update(secondsPassed);
+            draw();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop(0);
+    </script>
+</body>
+</html>
