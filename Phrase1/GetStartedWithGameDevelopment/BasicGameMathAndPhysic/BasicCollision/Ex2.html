@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rectangle Collision with Physics</title>
+    <style>
+        canvas {
+            border: 1px solid lightgrey;
+            display: block;
+            margin-bottom: 20px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="500"></canvas>
+
+    <h3>Rectangle 1:</h3> 
+    <p><b>Velocity:</b> <span id="velocity1">0, 0</span></p>
+    <p><b>Collision Normal:</b> <span id="normal1">0, 0</span></p>
+    
+    <h3>Rectangle 2:</h3> 
+    <p><b>Velocity:</b> <span id="velocity2">0, 0</span></p>
+    <p><b>Collision Normal:</b> <span id="normal2">0, 0</span></p>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const context = canvas.getContext("2d");
+
+        class Rectangle {
+            constructor(x, y, width, height, mass, velocityX, velocityY, color) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.mass = mass;
+                this.velocityX = velocityX;
+                this.velocityY = velocityY;
+                this.color = color;
+                this.collisionNormal = { x: 0, y: 0 };
+            }
+
+            draw(context) {
+                context.fillStyle = this.color;
+                context.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            update(deltaTime) {
+                this.x += this.velocityX * deltaTime;
+                this.y += this.velocityY * deltaTime;
+            }
+
+            checkCollision(canvas) {
+                if (this.x <= 0) {
+                    this.x = 0;
+                    this.velocityX = -this.velocityX;
+                    this.collisionNormal = { x: 1, y: 0 }; 
+                }
+                if (this.x + this.width >= canvas.width) {
+                    this.x = canvas.width - this.width;
+                    this.velocityX = -this.velocityX;
+                    this.collisionNormal = { x: -1, y: 0 };
+                }
+                if (this.y <= 0) {
+                    this.y = 0;
+                    this.velocityY = -this.velocityY;
+                    this.collisionNormal = { x: 0, y: 1 }; 
+                }
+                if (this.y + this.height >= canvas.height) {
+                    this.y = canvas.height - this.height;
+                    this.velocityY = -this.velocityY;
+                    this.collisionNormal = { x: 0, y: -1 }; 
+                }
+            }
+        }
+
+        function areRectanglesColliding(rect1, rect2) {
+            return (
+                rect1.x < rect2.x + rect2.width &&
+                rect1.x + rect1.width > rect2.x &&
+                rect1.y < rect2.y + rect2.height &&
+                rect1.y + rect1.height > rect2.y
+            );
+        }
+
+        function handleRectangleCollision(rect1, rect2) {
+            if (areRectanglesColliding(rect1, rect2)) {
+                const newVelX1 =
+                    (rect1.velocityX * (rect1.mass - rect2.mass) +
+                        2 * rect2.mass * rect2.velocityX) /
+                    (rect1.mass + rect2.mass);
+                const newVelX2 =
+                    (rect2.velocityX * (rect2.mass - rect1.mass) +
+                        2 * rect1.mass * rect1.velocityX) /
+                    (rect1.mass + rect2.mass);
+
+                const newVelY1 =
+                    (rect1.velocityY * (rect1.mass - rect2.mass) +
+                        2 * rect2.mass * rect2.velocityY) /
+                    (rect1.mass + rect2.mass);
+                const newVelY2 =
+                    (rect2.velocityY * (rect2.mass - rect1.mass) +
+                        2 * rect1.mass * rect1.velocityY) /
+                    (rect1.mass + rect2.mass);
+
+                rect1.velocityX = newVelX1;
+                rect2.velocityX = newVelX2;
+                rect1.velocityY = newVelY1;
+                rect2.velocityY = newVelY2;
+
+                rect1.collisionNormal = {
+                    x: Math.sign(rect1.velocityX - rect2.velocityX),
+                    y: Math.sign(rect1.velocityY - rect2.velocityY),
+                };
+                rect2.collisionNormal = {
+                    x: -rect1.collisionNormal.x,
+                    y: -rect1.collisionNormal.y,
+                };
+            }
+        }
+
+        const rect1 = new Rectangle(100, 100, 50, 50, 2, 200, 150, "blue");
+        const rect2 = new Rectangle(300, 200, 50, 50, 1, -150, -100, "red");
+
+        function updateDisplay() {
+            document.getElementById("velocity1").innerText = `${rect1.velocityX.toFixed(2)}, ${rect1.velocityY.toFixed(2)}`;
+            document.getElementById("normal1").innerText = `${rect1.collisionNormal.x}, ${rect1.collisionNormal.y}`;
+
+            document.getElementById("velocity2").innerText = `${rect2.velocityX.toFixed(2)}, ${rect2.velocityY.toFixed(2)}`;
+            document.getElementById("normal2").innerText = `${rect2.collisionNormal.x}, ${rect2.collisionNormal.y}`;
+        }
+
+        let lastTime = 0;
+        function animate(time) {
+            const deltaTime = (time - lastTime) / 1000;
+            lastTime = time;
+
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            rect1.update(deltaTime);
+            rect2.update(deltaTime);
+
+            rect1.checkCollision(canvas);
+            rect2.checkCollision(canvas);
+
+            handleRectangleCollision(rect1, rect2);
+
+            rect1.draw(context);
+            rect2.draw(context);
+
+            updateDisplay();
+
+            requestAnimationFrame(animate);
+        }
+
+        animate(0);
+    </script>
+</body>
+</html>
