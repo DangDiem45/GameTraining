@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Collision Detection</title>
+    <style>
+        canvas {
+            border: 1px solid lightgrey;
+            display: block;
+            margin: 20px auto;
+            background-color: white;
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const CONFIG = {
+            GRID_SIZE: 100,
+            RESTITUTION: 1,
+            IMPULSE_SCALE: 0.01,
+            COLLISION_COLOR: "#FFD700",
+        };
+
+        const objects = [
+            createObject(1, 50, 50, 80, 80, "red", 2, 1),
+            createObject(2, 300, 200, 80, 80, "blue", -1, 2),
+            createObject(3, 500, 400, 80, 80, "green", 1, -2),
+        ];
+
+        const grid = {};
+
+        function createObject(id, x, y, width, height, color, vx, vy) {
+            return {
+                id,
+                x, y, width, height,
+                color,
+                originalColor: color,
+                velocity: { x: vx, y: vy },
+            };
+        }
+
+        function updateGrid() {
+            Object.keys(grid).forEach(key => delete grid[key]);
+            objects.forEach(obj => {
+                getGridCells(obj).forEach(cell => {
+                    if (!grid[cell]) grid[cell] = [];
+                    grid[cell].push(obj);
+                });
+            });
+        }
+
+        function getGridCells(obj) {
+            const cells = [];
+            const startX = Math.floor(obj.x / CONFIG.GRID_SIZE);
+            const startY = Math.floor(obj.y / CONFIG.GRID_SIZE);
+            const endX = Math.floor((obj.x + obj.width) / CONFIG.GRID_SIZE);
+            const endY = Math.floor((obj.y + obj.height) / CONFIG.GRID_SIZE);
+
+            for (let x = startX; x <= endX; x++) {
+                for (let y = startY; y <= endY; y++) {
+                    cells.push(`${x},${y}`);
+                }
+            }
+            return cells;
+        }
+
+        function broadPhaseCollision() {
+            const checkedPairs = new Set();
+            Object.keys(grid).forEach(cell => {
+                const neighbors = grid[cell] || [];
+                neighbors.forEach(objA => {
+                    neighbors.forEach(objB => {
+                        if (objA.id !== objB.id) {
+                            const pairId = [objA.id, objB.id].sort().join("-");
+                            if (!checkedPairs.has(pairId)) {
+                                checkedPairs.add(pairId);
+                                if (checkCollision(objA, objB)) {
+                                    resolveCollision(objA, objB);
+                                }
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        function checkCollision(objA, objB) {
+            return !(
+                objA.x + objA.width < objB.x ||
+                objA.x > objB.x + objB.width ||
+                objA.y + objA.height < objB.y ||
+                objA.y > objB.y + objB.height
+            );
+        }
+
+        function resolveCollision(objA, objB) {
+            const dx = objB.x + objB.width / 2 - (objA.x + objA.width / 2);
+            const dy = objB.y + objB.height / 2 - (objA.y + objA.height / 2);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance === 0) return;
+
+            const nx = dx / distance;
+            const ny = dy / distance;
+
+            const relativeVelocityX = objA.velocity.x - objB.velocity.x;
+            const relativeVelocityY = objA.velocity.y - objB.velocity.y;
+
+            const impulseMagnitude = -(1 + CONFIG.RESTITUTION) * 
+                (relativeVelocityX * nx + relativeVelocityY * ny);
+
+            objA.velocity.x -= nx * impulseMagnitude * CONFIG.IMPULSE_SCALE;
+            objA.velocity.y -= ny * impulseMagnitude * CONFIG.IMPULSE_SCALE;
+            objB.velocity.x += nx * impulseMagnitude * CONFIG.IMPULSE_SCALE;
+            objB.velocity.y += ny * impulseMagnitude * CONFIG.IMPULSE_SCALE;
+
+            objA.color = CONFIG.COLLISION_COLOR;
+            objB.color = CONFIG.COLLISION_COLOR;
+
+            setTimeout(() => {
+                objA.color = objA.originalColor;
+                objB.color = objB.originalColor;
+            }, 100);
+        }
+
+        function updatePositions() {
+            objects.forEach(obj => {
+                obj.x += obj.velocity.x;
+                obj.y += obj.velocity.y;
+
+                if (obj.x < 0 || obj.x + obj.width > canvas.width) {
+                    obj.velocity.x *= -1;
+                }
+                if (obj.y < 0 || obj.y + obj.height > canvas.height) {
+                    obj.velocity.y *= -1;
+                }
+            });
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = "#ddd";
+            for (let x = 0; x < canvas.width; x += CONFIG.GRID_SIZE) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += CONFIG.GRID_SIZE) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawObjects() {
+            objects.forEach(obj => {
+                ctx.fillStyle = obj.color;
+                ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            });
+        }
+
+        function main() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+            updatePositions();
+            updateGrid();
+            broadPhaseCollision();
+            drawObjects();
+            requestAnimationFrame(main);
+        }
+
+        main();
+    </script>
+</body>
+</html> 
