@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bullet Collision Detection with Transparency</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    class Bullet {
+        constructor(x, y, vx, vy, radius = 2) {
+            this.x = x;          
+            this.y = y;          
+            this.vx = vx;     
+            this.vy = vy;      
+            this.radius = radius; 
+        }
+
+        update(deltaTime) {
+            this.x += this.vx * deltaTime;
+            this.y += this.vy * deltaTime;
+        }
+
+        checkCollision(target) {
+            const prevX = this.x - this.vx;
+            const prevY = this.y - this.vy;
+
+            const line = { x1: prevX, y1: prevY, x2: this.x, y2: this.y };
+
+            return target.intersects(line, prevX, prevY, this.x, this.y);
+        }
+
+        draw(ctx) {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+        }
+    }
+
+    class Target {
+        constructor(x, y, width, height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = "blue"; 
+            this.transparentRegions = []; 
+        }
+
+        intersects(line, prevX, prevY, currX, currY) {
+            const { x1, y1, x2, y2 } = line;
+
+            const edges = [
+                { x1: this.x, y1: this.y, x2: this.x + this.width, y2: this.y }, 
+                { x1: this.x, y1: this.y, x2: this.x, y2: this.y + this.height },
+                { x1: this.x + this.width, y1: this.y, x2: this.x + this.width, y2: this.y + this.height }, 
+                { x1: this.x, y1: this.y + this.height, x2: this.x + this.width, y2: this.y + this.height } 
+            ];
+
+            const intersections = [];
+
+            for (let edge of edges) {
+                if (lineSegmentIntersection(line, edge)) {
+                    intersections.push(edge);
+                }
+            }
+
+            if (intersections.length > 0) {
+                this.createTransparentRegions(intersections, prevX, prevY, currX, currY);
+            }
+
+            return intersections.length > 0;
+        }
+
+        createTransparentRegions(edges, prevX, prevY, currX, currY) {
+            for (let edge of edges) {
+                const intersection = this.getIntersection(prevX, prevY, currX, currY, edge.x1, edge.y1, edge.x2, edge.y2);
+                if (intersection) {
+                    this.transparentRegions.push(intersection);
+                }
+            }
+        }
+
+        getIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
+            const det = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3);
+            if (det === 0) return null; 
+
+            const t = ((x3 - x1) * (y4 - y3) - (y3 - y1) * (x4 - x3)) / det;
+            const u = ((x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1)) / det;
+
+            if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+                const intersectX = x1 + t * (x2 - x1);
+                const intersectY = y1 + t * (y2 - y1);
+                return { x: intersectX, y: intersectY };
+            }
+            return null;
+        }
+
+        draw(ctx) {
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(255, 255, 255, 1)'; 
+            for (let region of this.transparentRegions) {
+                ctx.beginPath();
+                ctx.arc(region.x, region.y, 5, 0, Math.PI * 2); 
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+    }
+
+    function lineSegmentIntersection(line1, line2) {
+        const { x1, y1, x2, y2 } = line1;
+        const { x1: x3, y1: y3, x2: x4, y2: y4 } = line2;
+
+        const det = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3);
+        if (det === 0) return false;
+
+        const t = ((x3 - x1) * (y4 - y3) - (y3 - y1) * (x4 - x3)) / det;
+        const u = ((x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1)) / det;
+
+        return t >= 0 && t <= 1 && u >= 0 && u <= 1;
+    }
+
+    const bullet = new Bullet(50, 300, 500, 0);
+    const target = new Target(400, 250, 50, 100); 
+
+    let lastTime = 0;
+
+    function gameLoop(time) {
+        const deltaTime = (time - lastTime) / 1000;
+        lastTime = time;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        bullet.update(deltaTime);
+        bullet.draw(ctx);
+
+        if (bullet.checkCollision(target)) {
+            console.log("Collision detected!");
+        }
+
+        target.draw(ctx);
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    requestAnimationFrame(gameLoop);
+</script>
+
+</body>
+</html>
