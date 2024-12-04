@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas Rotation Exercises</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    canvas {
+      border: 1px solid black;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Canvas Rotation Exercises</h1>
+  <div>
+    <button onclick="startExercise(1)">Rotate Multiple Shapes</button>
+    <button onclick="startExercise(2)">Rotating Arm Simulation</button>
+    <button onclick="startExercise(3)">Rotate Towards Mouse</button>
+  </div>
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    let animationFrame;
+
+    function startExercise(exercise) {
+      cancelAnimationFrame(animationFrame);
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      if (exercise === 1) rotateMultipleShapes();
+      else if (exercise === 2) rotatingArm();
+      else if (exercise === 3) rotateTowardsMouse();
+    }
+
+    function rotateMultipleShapes() {
+      const rectangles = [
+        { x: 100, y: 100, width: 50, height: 30, angle: 0, speed: 0.02 },
+        { x: 300, y: 200, width: 60, height: 40, angle: 0, speed: 0.03 },
+        { x: 500, y: 400, width: 70, height: 50, angle: 0, speed: 0.01 }
+      ];
+
+      function draw() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        rectangles.forEach(rect => {
+          context.save();
+          context.translate(rect.x, rect.y);
+          context.rotate(rect.angle);
+          context.fillRect(-rect.width / 2, -rect.height / 2, rect.width, rect.height);
+          context.restore();
+          rect.angle += rect.speed;
+        });
+        animationFrame = requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    function rotatingArm() {
+      let angle = 0;
+      const armLength = 150;
+      const armWidth = 20;
+
+      function drawArm() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.save();
+        context.translate(canvas.width / 2, canvas.height / 2);
+        context.rotate(angle);
+        context.fillRect(0, -armWidth / 2, armLength, armWidth);
+        context.restore();
+        angle += 0.02;
+        animationFrame = requestAnimationFrame(drawArm);
+      }
+      drawArm();
+    }
+
+    function rotateTowardsMouse() {
+      let mouseX = 0, mouseY = 0;
+      canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+      });
+
+      function drawFaceMouse() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const dx = mouseX - centerX;
+        const dy = mouseY - centerY;
+        const angle = Math.atan2(dy, dx);
+
+        context.save();
+        context.translate(centerX, centerY);
+        context.rotate(angle);
+        context.fillRect(-50, -25, 100, 50);
+        context.restore();
+
+        animationFrame = requestAnimationFrame(drawFaceMouse);
+      }
+      drawFaceMouse();
+    }
+  </script>
+</body>
+</html>
