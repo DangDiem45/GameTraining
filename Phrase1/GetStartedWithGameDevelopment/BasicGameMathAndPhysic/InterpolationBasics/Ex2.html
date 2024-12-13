@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scale and Rotate Animation</title>
+</head>
+<body>
+    <canvas id="gameCanvas" width="600" height="400" style="border: 1px solid lightgrey;"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+    
+        let square = {
+            position: { x: 300, y: 200 },
+            size: 50,
+            color: "green"
+        };
+    
+        let animation = {
+            startScale: 1,
+            endScale: 2,
+            duration: 3000,
+            rotationSpeed: Math.PI / 2,
+            direction: 1, 
+            currentScale: 1,
+            elapsed: 0
+        };
+    
+        function easeInOutQuad(t) {
+            return t < 0.5 
+                ? 2 * t * t 
+                : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        }
+    
+        function drawSquare({ position, size, color }, scale, rotation) {
+            const halfSize = size / 2;
+            
+            context.save();
+            context.translate(position.x, position.y);
+            context.rotate(rotation);
+            context.scale(scale, scale);
+    
+            context.fillStyle = color;
+            context.fillRect(-halfSize, -halfSize, size, size);
+    
+            context.restore();
+        }
+    
+        let lastTime = 0;
+        function animateSquare(time) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+    
+            animation.elapsed += deltaTime * animation.direction;
+    
+            if (animation.elapsed > animation.duration) {
+                animation.elapsed = animation.duration;
+                animation.direction *= -1; 
+            } else if (animation.elapsed < 0) {
+                animation.elapsed = 0;
+                animation.direction *= -1; 
+            }
+    
+            const t = animation.elapsed / animation.duration;
+            const easedT = easeInOutQuad(t);
+
+            const scale = animation.startScale + easedT * (animation.endScale - animation.startScale);
+            const rotation = time / 1000 * animation.rotationSpeed;
+    
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawSquare(square, scale, rotation);
+    
+            requestAnimationFrame(animateSquare);
+        }
+    
+        requestAnimationFrame(animateSquare);
+    </script>
+    
+</body>
+</html>
