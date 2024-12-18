@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Path Animation</title>
+</head>
+<body>
+    <canvas id="gameCanvas" width="600" height="400" style="border: 1px solid lightgrey;"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+
+        const center = { x: 300, y: 200 }; 
+        const radius = 100; 
+        const duration = 4000; 
+
+        let animation = {
+            elapsed: 0, 
+            direction: 1, 
+        };
+
+        function easeInOutQuad(t) {
+            return t < 0.5 
+                ? 2 * t * t 
+                : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        }
+
+        function drawMovingObject(angle) {
+            const x = center.x + radius * Math.cos(angle);
+            const y = center.y + radius * Math.sin(angle);
+
+            context.fillStyle = "green";
+            context.beginPath();
+            context.arc(x, y, 20, 0, Math.PI * 2);
+            context.fill();
+        }
+
+        let lastTime = 0;
+        function animatePath(time) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
+            animation.elapsed += deltaTime * animation.direction;
+
+            if (animation.elapsed > duration) {
+                animation.elapsed = duration;
+                animation.direction *= -1;
+            } else if (animation.elapsed < 0) {
+                animation.elapsed = 0;
+                animation.direction *= -1; 
+            }
+
+            const t = animation.elapsed / duration;
+            const easedT = easeInOutQuad(t);
+            const angle = easedT * 2 * Math.PI; 
+            
+            context.clearRect(0, 0, canvas.width, canvas.height); 
+            drawMovingObject(angle); 
+
+            requestAnimationFrame(animatePath);
+        }
+
+        requestAnimationFrame(animatePath);
+    </script>
+</body>
+</html>
