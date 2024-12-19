@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spaceship Canvas Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: white;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let ship = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            angle: 0,
+            speed: 0,
+            image: new Image(),
+            velocity: {
+                x: 0,
+                y: 0
+            }
+        };
+
+        ship.image.src = 'src/image.png';
+
+        let mouse = {
+            x: canvas.width / 2,
+            y: canvas.height / 2
+        };
+
+        let keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false
+        };
+
+        function update() {
+            let dx = mouse.x - ship.x;
+            let dy = mouse.y - ship.y;
+            ship.angle = Math.atan2(dy, dx);
+
+            if (keys.ArrowUp) {
+                ship.velocity.x += Math.cos(ship.angle) * 0.1;
+                ship.velocity.y += Math.sin(ship.angle) * 0.1;
+            }
+            if (keys.ArrowDown) {
+                ship.velocity.x -= Math.cos(ship.angle) * 0.05;
+                ship.velocity.y -= Math.sin(ship.angle) * 0.05;
+            }
+
+            ship.x += ship.velocity.x;
+            ship.y += ship.velocity.y;
+
+            ship.velocity.x *= 0.98;
+            ship.velocity.y *= 0.98;
+
+            if (ship.x < 0) ship.x = canvas.width;
+            if (ship.x > canvas.width) ship.x = 0;
+            if (ship.y < 0) ship.y = canvas.height;
+            if (ship.y > canvas.height) ship.y = 0;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(ship.x, ship.y);
+            ctx.rotate(ship.angle);
+            ctx.drawImage(ship.image, -ship.image.width / 2, -ship.image.height / 2);
+            ctx.restore();
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                keys[e.key] = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                keys[e.key] = false;
+            }
+        });
+
+        ship.image.onload = () => {
+            gameLoop();
+        };
+    </script>
+</body>
+</html>
