@@ -15,7 +15,7 @@ export class LevelManager {
     if (this.board) {
       this.board.updateLevel(this.currentLevel);
     } else {
-      console.error("Board chưa được khởi tạo trong LevelManager!");
+      console.error("Board not create in LevelManager!");
     }
     
   } 

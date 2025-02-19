@@ -1,30 +1,37 @@
+import { MovePacman } from "../handle/movePacman.js"; 
+import { Animation } from "../handle/Animation.js";
+
+
 export class Pacman {
-    constructor(ctx, x, y, images) {
+    constructor(ctx, x, y, pacmanImage, collisionHandle) {
         this.ctx = ctx;
         this.sizePacman = 25;
         this.x = x * this.sizePacman;
         this.y = y * this.sizePacman;
-        this.speed = 2;
-        this.direction = { x: 0, y: 0 };
-        this.pacmanImage = images;
-        this.pacmanImageIndex = 0;
+        this.speed = 1;
+        this.pacmanImage = pacmanImage;
+        this.animation = new Animation(pacmanImage);
+
+        this.movePacman = new MovePacman(this, collisionHandle);
+
     }
 
     draw(ctx) {
+        if (this.movePacman.pacman.currentMovingDirection !== null) {  
+            this.animation.animate(); 
+        }
+        this.movePacman.move();
         if (!this.pacmanImage.length) {
             console.warn("Pacman images not loaded.");
             return;
         }
         ctx.drawImage(
-            this.pacmanImage[this.pacmanImageIndex],
+            this.pacmanImage[this.animation.pacmanImageIndex],
             this.x,
             this.y,
             this.sizePacman,
             this.sizePacman
         );
     }
-
-    
-
     
 }
