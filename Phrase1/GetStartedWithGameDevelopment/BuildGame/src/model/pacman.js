@@ -1,5 +1,5 @@
 import { MovePacman } from "../handle/movePacman.js"; 
-import { Animation } from "../handle/Animation.js";
+import { Animation } from "../handle/animation.js";
 
 
 export class Pacman {
