@@ -14,8 +14,16 @@ export class MovePacman{
         this.pacman.requestedMovingDirection = null;  
         this.collisionHandle = collisionHandle;
         this.animation = pacman.animation;
-
+        this.rotation = this.Rotation.right;
+        
         document.addEventListener("keydown", this.keydown);
+    }
+
+    Rotation = {
+        right: 0,
+        down: 1,
+        left: 2,
+        up: 3
     }
 
     keydown = (event) => {
@@ -80,15 +88,19 @@ export class MovePacman{
         switch (this.pacman.currentMovingDirection) {
             case MovingDirection.up:
                 this.pacman.y -= this.pacman.speed;
+                this.rotation = this.Rotation.up;
                 break;
             case MovingDirection.down:
                 this.pacman.y += this.pacman.speed;
+                this.rotation = this.Rotation.down;
                 break;
             case MovingDirection.left:
                 this.pacman.x -= this.pacman.speed;
+                this.rotation = this.Rotation.left;
                 break;
             case MovingDirection.right:
                 this.pacman.x += this.pacman.speed;
+                this.rotation = this.Rotation.right;
                 break;
         }
     }

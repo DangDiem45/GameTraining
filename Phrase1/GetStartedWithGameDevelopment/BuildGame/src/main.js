@@ -47,7 +47,7 @@ async function startGame() {
         canvas.height = levelManager.currentLevel.boardMatrix.length * board.tileSize;
 
         collisionHandle = new CollisionHandle(board);
-        pacman = new Pacman(ctx, levelManager.currentLevel.startingPos.x, levelManager.currentLevel.startingPos.y, pacmanImages, collisionHandle);
+        pacman = new Pacman(ctx, levelManager.currentLevel.startingPos.x, levelManager.currentLevel.startingPos.y, pacmanImages, collisionHandle, board);
         console.log("Board before passing to CollisionHandle:", board);
 
         gameLoop();

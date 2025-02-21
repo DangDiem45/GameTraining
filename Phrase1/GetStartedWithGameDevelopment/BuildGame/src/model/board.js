@@ -102,4 +102,16 @@
             }
         }
     }
+
+
+    eatDot(x, y){
+        const row = y / this.tileSize;
+        const col = x / this.tileSize;
+
+        if(Number.isInteger(row) && Number.isInteger(col)){
+            if(this.level.boardMatrix[row][col] == 2){
+                this.level.boardMatrix[row][col] = 0;
+            }
+        }
+    }
  }
