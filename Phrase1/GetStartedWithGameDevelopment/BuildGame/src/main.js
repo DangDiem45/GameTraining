@@ -3,6 +3,7 @@ import { LevelManager } from "./level/level_manager.js";
 import { Level } from "./level/level.js";
 import { Pacman } from "./model/pacman.js";
 import { CollisionHandle } from "./handle/collisionHandle.js";
+import { Ghost } from "./model/ghosts.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -12,6 +13,7 @@ const levelManager = new LevelManager(board);
 let pacman;
 let pacmanImages = [];
 let collisionHandle;
+let ghosts = [];
 
 async function loadPacmanImages() {
     const imagePaths = [
@@ -47,8 +49,22 @@ async function startGame() {
         canvas.height = levelManager.currentLevel.boardMatrix.length * board.tileSize;
 
         collisionHandle = new CollisionHandle(board);
-        pacman = new Pacman(ctx, levelManager.currentLevel.startingPos.x, levelManager.currentLevel.startingPos.y, pacmanImages, collisionHandle, board);
-        console.log("Board before passing to CollisionHandle:", board);
+        pacman = new Pacman(
+            ctx,
+            levelManager.currentLevel.startingPos.x, 
+            levelManager.currentLevel.startingPos.y, 
+            pacmanImages, 
+            collisionHandle, 
+            board
+        );
+        
+        const ghostImages = await Ghost.loadImages();
+        ghosts = Ghost.createGhosts(
+            ctx, 
+            board, 
+            levelManager.currentLevel, 
+            ghostImages
+        );
 
         gameLoop();
     }
@@ -61,8 +77,7 @@ function gameLoop() {
     board.drawWalls();
     board.drawDot();
 
-  
-
+    ghosts.forEach(ghost => ghost.draw());
     requestAnimationFrame(gameLoop);
 }
 

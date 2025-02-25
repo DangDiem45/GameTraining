@@ -1,7 +1,5 @@
 import { MovePacman } from "../handle/movePacman.js"; 
 import { Animation } from "../handle/animation.js";
-import { Board } from "./board.js";
-
 
 export class Pacman {
     constructor(ctx, x, y, pacmanImage, collisionHandle, board) {
@@ -15,7 +13,6 @@ export class Pacman {
         this.board = board;
 
         this.movePacman = new MovePacman(this, collisionHandle);
-
     }
 
     draw(ctx) {

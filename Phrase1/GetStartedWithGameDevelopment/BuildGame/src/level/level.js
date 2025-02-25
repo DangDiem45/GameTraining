@@ -2,8 +2,7 @@ export class Level {
   constructor() {
     this.boardMatrix = [];
     this.startingPos = { x: 0, y: 0 };
-    this.energizers = [];
-    this.pillAmount = 0;
+    this.ghosts = [];
   }
 
   // Create level from json
@@ -11,8 +10,7 @@ export class Level {
     
     this.boardMatrix = levelData.boardMatrix || [];
     this.startingPos = levelData.startingPos || { x: 0, y: 0 };
-    this.energizers = levelData.energizers || [];
-    this.pillAmount = levelData.pillAmount || 0;
+    this.ghosts = levelData.ghosts || [];
 
   }
 
