@@ -63,21 +63,37 @@ async function startGame() {
             ctx, 
             board, 
             levelManager.currentLevel, 
-            ghostImages
+            ghostImages,
+            pacman
         );
 
         gameLoop();
     }
 }
 
+let gameOver = false;
+
 function gameLoop() {
+    if (gameOver) {
+        ctx.fillStyle = "red";
+        ctx.font = "30px Arial";
+        ctx.fillText("Game Over", canvas.width / 2 - 80, canvas.height / 2);
+        return;
+    }
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     pacman.draw(ctx);
     board.drawWalls();
     board.drawDot();
 
-    ghosts.forEach(ghost => ghost.draw());
+    ghosts.forEach(ghost => {
+        ghost.draw();
+        if (ghost.moveGhost.checkPacmanCollision()) {
+            gameOver = true;
+        }
+    });
+
     requestAnimationFrame(gameLoop);
 }
 

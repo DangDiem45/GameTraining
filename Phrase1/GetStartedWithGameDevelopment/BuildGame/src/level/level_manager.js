@@ -13,7 +13,7 @@ export class LevelManager {
     this.currentLevel = new Level();
     this.currentLevel.init(levelData); 
     if (this.board) {
-      this.board.updateLevel(this.currentLevel);
+      this.board.updateLevel(this.currentLevel); 
     } else {
       console.error("Board not create in LevelManager!");
     }

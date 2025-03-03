@@ -25,6 +25,7 @@ export class Pacman {
             console.warn("Pacman images not loaded.");
             return;
         }
+        
         // ctx.drawImage(
         //     this.pacmanImage[this.animation.pacmanImageIndex],
         //     this.x,
